@@ -1,0 +1,16 @@
+package festivosco.api.infraestructura.repositorios;
+
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface ITipoFestivoRepositorio extends JpaRepository<TipoFestivo, Integer> {
+
+    @Query("SELECT t FROM TipoFestivo t WHERE t.nombre LIKE %?1% ORDER BY t.nombre ASC")
+    List<TipoFestivo> buscar(String nombre);
+
+}
