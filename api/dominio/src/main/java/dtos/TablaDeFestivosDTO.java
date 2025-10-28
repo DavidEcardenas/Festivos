@@ -1,4 +1,4 @@
-package  festivosco.api.dominio.dto;
+package  festivosco.api.dominio.dtos;
 
 
 import jakarta.persistence.Entity;
