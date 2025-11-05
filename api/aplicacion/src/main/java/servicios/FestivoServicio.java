@@ -1,8 +1,11 @@
 package festivosco.api.aplicacion.servicios;
 
 import org.springframework.stereotype.Service;
+import java.time.LocalDate;
 import java.util.List;
+
 import festivosco.api.dominio.entidades.Festivo;
+import festivosco.api.core.servicios.ServicioFechas;
 import festivosco.api.core.servicios.IFestivoServicio;
 import festivosco.api.infraestructura.repositorios.IFestivoRepositorio;
 
@@ -15,6 +18,7 @@ public class FestivoServicio implements IFestivoServicio {
         this.repositorio = repositorio;
     }
 
+
     @Override
     public List<Festivo> listar() {
         return repositorio.findAll();
@@ -22,8 +26,7 @@ public class FestivoServicio implements IFestivoServicio {
 
     @Override
     public Festivo obtener(int id) {
-        var festivoEncontrado = repositorio.findById(id);
-        return festivoEncontrado.orElse(null);
+        return repositorio.findById(id).orElse(null);
     }
 
     @Override
@@ -51,25 +54,48 @@ public class FestivoServicio implements IFestivoServicio {
     }
 
 
-
     @Override
     public boolean esFestivo(int dia, int mes, int anio, int idPais) {
-       
-        var festivos = repositorio.buscarFestivoPorFecha(dia, mes, idPais);
-        if (!festivos.isEmpty()) {
+     
+        var festivosFijos = repositorio.buscarFestivoPorFecha(dia, mes, idPais);
+        if (!festivosFijos.isEmpty()) {
             return true;
         }
 
-       
-        return false;
+     
+        LocalDate pascua = ServicioFechas.getDomingoPascua(anio);
+        LocalDate fechaConsulta = LocalDate.of(anio, mes, dia);
+
+      
+        var festivos = repositorio.findAll().stream()
+                .filter(f -> f.getPais() != null && f.getPais().getId() == idPais)
+                .toList();
+
+        for (Festivo f : festivos) {
+            if (f.getDiasPascua() != null) {
+               
+                LocalDate fechaFestivo = ServicioFechas.agregarDias(pascua, f.getDiasPascua());
+
+               
+                if (f.getTipo() != null && f.getTipo().getTipo().equalsIgnoreCase("Ley Emiliani")) {
+                    fechaFestivo = ServicioFechas.siguienteLunes(fechaFestivo);
+                }
+
+               
+                if (fechaFestivo.equals(fechaConsulta)) {
+                    return true;
+                }
+            }
+        }
+
+        return false; 
     }
 
     @Override
     public List<Festivo> listarFestivosPorAnio(int idPais, int anio) {
-
-        return repositorio.findAll()
-                .stream()
-                .filter(f -> f.getPais().getId() == idPais)
+        
+        return repositorio.findAll().stream()
+                .filter(f -> f.getPais() != null && f.getPais().getId() == idPais)
                 .toList();
     }
 }
