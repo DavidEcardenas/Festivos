@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface ITipoFestivoRepositorio extends JpaRepository<TipoFestivo, Integer> {
 
-    @Query("SELECT t FROM TipoFestivo t WHERE t.nombre LIKE %?1% ORDER BY t.nombre ASC")
-    List<TipoFestivo> buscar(String nombre);
+    @Query("SELECT t FROM TipoFestivo t WHERE t.tipo LIKE %?1% ORDER BY t.tipo ASC")
+    List<TipoFestivo> buscar(String tipo);
 
 }
